@@ -1,15 +1,48 @@
 import express,{Request, Response} from 'express';
 import dotenv from 'dotenv';
-import router from './Routes/route';
+import Routes from './Routes/route';
 dotenv.config();
 
-//console.log("Hello World");
+const router = new Routes().router
+class app {
 
-const app: express.Application = express();
-app.use(express.json());
+    public app: express.Application = express();
 
-app.use('/', router);
+    constructor() {
+        this.routes();
+        this.connection();
+    }
 
-app.listen(process.env.PORT ,() => {
-    console.log(`server is listening to ${process.env.PORT}`);
-})
+    private middleWare(): void {
+        this.app.use(express.json());
+        this.app.use(express.urlencoded({ extended: false}))
+    }
+
+    private routes(): void {
+        this.app.use('/', router)
+    }
+
+    private connection(): void {
+        this.app.listen(process.env.PORT, () => {
+        console.log(`server is listening to this ${process.env.PORT}`); 
+        })
+    }
+}
+
+export default new app().app;
+
+
+
+
+
+
+
+// const app: express.Application = express();
+// app.use(express.json());
+
+// app.use('/', router);
+
+
+// app.listen(process.env.PORT ,() => {
+//     console.log(`server is listening to ${process.env.PORT}`);
+// })
