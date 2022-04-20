@@ -1,9 +1,15 @@
 import express,{Request, Response} from 'express';
 import dotenv from 'dotenv';
 import Routes from './Routes/route';
+import connectDB from './db/connectDB';
+import User from './models/user';
+
 dotenv.config();
 
+const db = new connectDB();
+
 const router = new Routes().router
+
 class app {
 
     public app: express.Application = express();
@@ -27,6 +33,8 @@ class app {
         console.log(`server is listening to this ${process.env.PORT}`); 
         })
     }
+
+
 }
 
 export default new app().app;

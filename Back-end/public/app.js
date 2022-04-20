@@ -6,7 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const route_1 = __importDefault(require("./Routes/route"));
+const connectDB_1 = __importDefault(require("./db/connectDB"));
 dotenv_1.default.config();
+const db = new connectDB_1.default();
 const router = new route_1.default().router;
 class app {
     constructor() {
