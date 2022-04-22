@@ -1,24 +1,26 @@
 import express, {Request, Response} from "express";
-import User from "../models/user";
-import userDoc from "../interface/userInterface";
+import restaurantDoc from "../interface/restaurantInterface";
 import bcrypt from 'bcrypt';
 import jwt  from "jsonwebtoken";
+import cookieparser from "cookie-parser";
 import nodemailer from 'nodemailer';
+import Restaurant from "../models/restaurant";
 
-class Registration {
+class RestaurantRegistration {
 
-    public registration = async(req: Request, res: Response) => {
+    public restaurantRegistration = async(req: Request, res: Response) => {
 
         const hashPassword = await bcrypt.hash(req.body.password, 10)
         try {
-            const {email, name, password} = req.body;
+            const {RestaurantName, OwnerName, email, password} = req.body;
 
-            const doc: userDoc  = new User({
-                name: name,
+            const doc: restaurantDoc  = new Restaurant({
+                RestaurantName: RestaurantName,
+                OwnerName: OwnerName,
                 email: email,
                 password: hashPassword
             });
-
+        
             try {
                 const a = await jwt.sign({ ...doc }, process.env.SECRET_KEY as string)
                 try {
@@ -33,7 +35,7 @@ class Registration {
                     from: process.env.EMAIL,
                     to: email,
                     subject: 'Verification of your account',
-                    html: `<h1 style="text-align: center;">Verify Your Account</h1> http://localhost:3000/verifyEMail/${a}           
+                    html: `<h1 style="text-align: center;">Verify Your Account</h1> http://localhost:3000/verifyRestaurantEMail/${a}           
                     <h3 style="text-align: center;">Thank You</h3>`
                   };
                   mailTransporter.sendMail(mailDetails, function (err, data) {
@@ -47,11 +49,11 @@ class Registration {
                   console.log("error while sending mail", error);
                 }
               }
-              catch (error) {
-                console.log("error in token");
-              }
 
-        res.send("Please Verify Your E-Mail ID!!!")
+              catch (error) {
+                  console.log("error in token");
+              }
+        res.send(`${RestaurantName}, Please Verify Your E-Mail ID!!!`)
         } catch (error) {
             console.log(error);
             
@@ -59,14 +61,14 @@ class Registration {
 
     }
 
-    public verifyRegistration = async (req: Request, res: Response) => {
+    public verifyRestaurantRegistration = async (req: Request, res: Response) => {
 
         try {
             
             const uid: string = req.params.id;
-            const token: any = (await jwt.verify(uid, process.env.SECRET_KEY as string)) as userDoc;
+            const token: any = (await jwt.verify(uid, process.env.SECRET_KEY as string)) as restaurantDoc;
 
-            const checkEmail = await User.findOne({email: token._doc.email});
+            const checkEmail = await Restaurant.findOne({email: token._doc.email});
 
             if (checkEmail !== null) {
                 res.send("Your account is already verified!!!");
@@ -74,9 +76,9 @@ class Registration {
 
             else{
 
-                const data = new User( token._doc );
+                const data = new Restaurant( token._doc );
                 data.save();
-                res.send(`<h1> ${data.name}, You have successfully completed your Registration!!!`)
+                res.send(`<h1> ${data.RestaurantName}, You have successfully completed your Registration!!!`)
             
             }
 
@@ -86,27 +88,30 @@ class Registration {
         }
     }
 
-    public login = async(req: Request, res: Response) => {
+    public restaurantLogin = async(req: Request, res: Response) => {
 
         try {
             const { email, password } = req.body;
 
-            const result: any  = await User.findOne({email: email})
+            const result: any  = await Restaurant.findOne({email: email})
             
             
             if (result != null) {
                 const isMatch = await bcrypt.compare(password, result.password)
+
                 if (result.email === email && isMatch) {
 
                     const a = {
-                        name: result.name,
+                        RestaurantName: result.RestaurantName,
+                        OwnerName: result.OwnerName,
                         email: result.email,
                         id: result._id
                     }
 
                     const token = jwt.sign(a, process.env.SECRET_KEY as string);
-                    res.status(200).cookie("Auth-Token", token).set("Auth-Token", token).json({status: `<h1> You have Successfully Logged in!!!!!</h1>`});
+                    res.status(200).cookie("Auth-Token", token).set("Auth-Token", token).json({status: "Success"});
 
+                    res.send(`<h1> ${result.HotelName} have Successfully Logged in!!!!!</h1>`)
                 }
 
                 else if (isMatch === false) {
@@ -115,7 +120,7 @@ class Registration {
             }
 
             else {
-                res.send(`<h1>You are not a registered User...</h1>`)
+                res.send(`<h1>You are not a registered Restaurant...</h1>`);
             }
         }
 
@@ -125,9 +130,6 @@ class Registration {
     
     }
 
-
-    
-
 }
 
-export default Registration;
+export default RestaurantRegistration;

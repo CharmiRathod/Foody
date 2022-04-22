@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import Routes from './Routes/route';
 import connectDB from './db/connectDB';
 import User from './models/user';
+import cookieparser from 'cookie-parser';
+
 
 dotenv.config();
 
@@ -15,13 +17,15 @@ class app {
     public app: express.Application = express();
 
     constructor() {
+        this.middleWare();
         this.routes();
         this.connection();
     }
 
     private middleWare(): void {
         this.app.use(express.json());
-        this.app.use(express.urlencoded({ extended: false}))
+        this.app.use(express.urlencoded({ extended: false}));
+        this.app.use(cookieparser());
     }
 
     private routes(): void {

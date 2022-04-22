@@ -1,4 +1,15 @@
 import express, { Request, Response, Router } from 'express';
+import userValidation from '../validations/userValidation';
+import Registration from '../controllers/userController';
+import restaurantValidation from '../validations/restaurantValidation';
+import RestaurantRegistration from '../controllers/restaurantController';
+
+
+const registerUser = new Registration();
+const UserValidation = new userValidation();
+
+const registerRestaurant = new RestaurantRegistration();
+const RestaurantValidation = new restaurantValidation();
 
 class Routes {
     
@@ -8,6 +19,11 @@ constructor() {
     this.router = express.Router();
     this.root();
     this.registration();
+    this.login();
+    this.restaurantRegistration();
+    this.restaurantLogin();
+    this.userVerification();
+    this.restaurantVerification();
 }
 
 private root() {
@@ -17,16 +33,29 @@ private root() {
 }
 
 private registration() {
-    this.router.route('/registration').post((req: Request, res: Response) => {
-        res.send(`<h1> Regitration Page </h1>`);
-    })
+    this.router.route('/registration').post(UserValidation.validateUser, registerUser.registration)
 }
 
 private login() {
-    this.router.route('/Login').post((req: Request, res: Response) => {
-        res.send(`<h1> Login Page </h1>`);
-    })
+    this.router.route('/login').post(registerUser.login);
 }
+
+private restaurantRegistration() {
+    this.router.route('/restaurantRegistration').post(RestaurantValidation.validateRestaurant, registerRestaurant.restaurantRegistration)
+}
+
+private restaurantLogin() {
+    this.router.route('/hotelLogin').post(registerRestaurant.restaurantLogin);
+}
+
+private userVerification() {
+    this.router.route('/verifyEMail/:id').get(registerUser.verifyRegistration);
+}
+
+private restaurantVerification() {
+    this.router.route('/verifyRestaurantEMail/:id').get(registerRestaurant.verifyRestaurantRegistration);
+}
+
 }
 
 export default Routes;

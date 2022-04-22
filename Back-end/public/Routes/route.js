@@ -4,11 +4,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const userValidation_1 = __importDefault(require("../validations/userValidation"));
+const userController_1 = __importDefault(require("../controllers/userController"));
+const restaurantValidation_1 = __importDefault(require("../validations/restaurantValidation"));
+const restaurantController_1 = __importDefault(require("../controllers/restaurantController"));
+const registerUser = new userController_1.default();
+const UserValidation = new userValidation_1.default();
+const registerRestaurant = new restaurantController_1.default();
+const RestaurantValidation = new restaurantValidation_1.default();
 class Routes {
     constructor() {
         this.router = express_1.default.Router();
         this.root();
         this.registration();
+        this.login();
+        this.restaurantRegistration();
+        this.restaurantLogin();
+        this.userVerification();
+        this.restaurantVerification();
     }
     root() {
         this.router.get('/', (req, res) => {
@@ -16,14 +29,22 @@ class Routes {
         });
     }
     registration() {
-        this.router.route('/registration').post((req, res) => {
-            res.send(`<h1> Regitration Page </h1>`);
-        });
+        this.router.route('/registration').post(UserValidation.validateUser, registerUser.registration);
     }
     login() {
-        this.router.route('/Login').post((req, res) => {
-            res.send(`<h1> Login Page </h1>`);
-        });
+        this.router.route('/login').post(registerUser.login);
+    }
+    restaurantRegistration() {
+        this.router.route('/restaurantRegistration').post(RestaurantValidation.validateRestaurant, registerRestaurant.restaurantRegistration);
+    }
+    restaurantLogin() {
+        this.router.route('/hotelLogin').post(registerRestaurant.restaurantLogin);
+    }
+    userVerification() {
+        this.router.route('/verifyEMail/:id').get(registerUser.verifyRegistration);
+    }
+    restaurantVerification() {
+        this.router.route('/verifyRestaurantEMail/:id').get(registerRestaurant.verifyRestaurantRegistration);
     }
 }
 exports.default = Routes;

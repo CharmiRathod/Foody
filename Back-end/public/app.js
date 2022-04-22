@@ -7,18 +7,21 @@ const express_1 = __importDefault(require("express"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const route_1 = __importDefault(require("./Routes/route"));
 const connectDB_1 = __importDefault(require("./db/connectDB"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 dotenv_1.default.config();
 const db = new connectDB_1.default();
 const router = new route_1.default().router;
 class app {
     constructor() {
         this.app = (0, express_1.default)();
+        this.middleWare();
         this.routes();
         this.connection();
     }
     middleWare() {
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.urlencoded({ extended: false }));
+        this.app.use((0, cookie_parser_1.default)());
     }
     routes() {
         this.app.use('/', router);
